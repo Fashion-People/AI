@@ -1,0 +1,8 @@
+{% block content %}
+    {%csrf_token %}    
+        <h2>The classification of the image is {{predictImage}} </h2>
+        <h2>The style of the image is {{styleImage}}</h2>
+        <img src = {{filePathName}} alt='imagename'>
+    </form>
+    <br>
+{% endblock %}

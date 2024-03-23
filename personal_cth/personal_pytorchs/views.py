@@ -1,4 +1,11 @@
 from django.shortcuts import render
+from rest_framework import viewsets
+from .serializers import ItemSerializer
+from .models import clothes_classification
+
+class ItemViewSet(viewsets.ModelViewSet):
+    queryset = clothes_classification.objects.all()
+    serializer_class = ItemSerializer
 # Create your views here.
 
 from django.core.files.storage import FileSystemStorage

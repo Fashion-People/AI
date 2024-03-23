@@ -47,6 +47,9 @@ urlpatterns = [
     url(r'swagger(?P<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'redoc', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    #api 부분
+    path('',include('personal_pytorchs.urls')), #personal_pytorchs/urls.py 사용한다
 ]
 
 #media 파일로 들어간다.

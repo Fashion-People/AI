@@ -1,16 +1,72 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-from .serializers import ItemSerializer
-from .models import clothes_classification
-
-class ItemViewSet(viewsets.ModelViewSet):
-    queryset = clothes_classification.objects.all()
-    serializer_class = ItemSerializer
 # Create your views here.
-
 from django.core.files.storage import FileSystemStorage
-
 import requests
+import json
+
+from django.shortcuts import render
+# DRF 관련 import 
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+#api 시리얼 import
+from .serializers import ClothesSerializer
+from .serializers import Clothes_url_Serializer
+from .serializers import Clothes_analysis_Serializer
+#api 모델 임포트 import
+from .models import clothes_classification 
+
+#spring boot 연동을 위한 import
+from django.http import JsonResponse
+
+
+class ClothesViewSet(viewsets.ModelViewSet):
+    queryset = clothes_classification.objects.all()
+    serializer_class = ClothesSerializer
+
+#미리 해보는 것 연습용
+@api_view(['GET'])
+def API(request):
+    return Response("api 에 오신것을 환영합니다.")
+# 이미지 url 가져오기 & json 형태 데이터 파싱 
+@api_view(['GET','POST'])
+def clothes_urlAPI(request):
+    if request.method == 'GET':
+        response = requests.get('http://54.180.107.32:8081/temp/1') #여기에는 가져오는 spring boot 의 서버주소 
+        data_from_springboot = response.json()
+        #this_url = Clothes_url_Serializer.objects.get(imageUrl)
+        #serializer = Clothes_url_Serializer.object.get(this_item)
+        
+        # 실험하기 위해서 작성한 코드 
+        data_from_springboot['imageUrl']="https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg"
+        return JsonResponse(data_from_springboot)
+    elif request.method == 'POST':
+        return ()
+
+
+    #return imageUrl,tempNumber
+    #return Response("안녕하세요 api에 오신것을 환영합니다.")
+
+
+
+
+#챗지피티 참조
+#data_to_send = {'key': 'value'}
+#response = requests.post('http://localhost:8080/data', json=data_to_send)
+#return JsonResponse({'status': response.status_code})
+
+
+# 이미지 분석결과 보내주기
+@api_view(['POST'])
+def clothes_analysisAPI(request):
+    ClothesNumber, ClothesType ,ClothesStyle =  predictImage()
+    print(ClothesNumber)
+    print(ClothesType)
+    print(ClothesStyle)
+    data_to_send = {'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle}
+    data_to_springboot = json.dumps(data_to_send)
+    return JsonResponse(data_to_springboot)
+
+
 
 #model을 위한 준비과정
 import io
@@ -68,27 +124,21 @@ style_model = style_loaded_model
 #def index(request):
 #    context={'a':1}
 #    return render(request,'index.html',context)
-
 #이미지 분석전용?
-def index(request):
-    context={'a':1}
-    return render(request,'index.html',context)
 
-def predictImage(request):
-    print(request)
-    print (request.POST.dict())
+
+
+#기존 url + predictImage를 더해서 request 했을때를 의미함
+def predictImage():
+    #print(request)
+    #print (request.POST.dict())
     #print (request.FILES['filePath'])
     #file obj => 파일 이름
 
-    
     #fileobj = (request.FILES['filePath'])
     #fs = FileSystemStorage()
     #filePathName = fs.save(fileobj.name,fileobj)
     #filePathName = fs.url(filePathName)
-    
-    #image_url = 'https://fashionbucket.s3.ap-northeast-2.amazonaws.com/profile/image/20240128190555194.jpg'
-    #image_url = 'http://127.0.0.1:8000/media/slxm_OLbTRZH.jpg'
-    #image_url = 'https://media.bunjang.co.kr/product/224788073_1_1684729916_w360.jpg'
     
     #반팔
     #image_url='https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg' 
@@ -100,7 +150,7 @@ def predictImage(request):
     #블라우스
     #image_url='https://media.bunjang.co.kr/product/124189638_1_1589021004_w360.jpg'
 
-    image_url='https://media.bunjang.co.kr/product/224787189_1_1684729265_w360.jpg'
+    #image_url='https://media.bunjang.co.kr/product/224787189_1_1684729265_w360.jpg'
 
     #image_url='https://media.bunjang.co.kr/product/246083941_1_1702366323_w360.jpg'
 
@@ -114,7 +164,15 @@ def predictImage(request):
     #니트
     #image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThL2z9FRqnYfqVhp9MfahfmYod4WMSlp8qWA&usqp=CAU'
     #image_url='https://web.joongna.com/cafe-article-data/live/2024/01/15/1035339901/1705305954360_000_DXO5P_main.jpg'
-    response = requests.get(image_url)
+    
+    #장고 서버 열면, 여기 url 수정 필요 
+    response = requests.get('http://127.0.0.1:8000/clothes_urlAPI/')
+    data_from_springboot = response.json()
+    imageUrl = data_from_springboot.get('imageUrl')
+    tempNumber = data_from_springboot.get('tempNumber')
+
+    
+    response = requests.get(imageUrl)
     image_bytes = response.content
 
     # BytesIO를 사용하여 이미지 불러오기
@@ -205,7 +263,16 @@ def predictImage(request):
         Style_Image='페미닌'
 
 
+    #이부분에 post 하는 def 시켜놓은거 불러다가 저장해주기?
+
     #context={'filePathName':filePathName,'predictImage':predictImage}
-    context={'filePathName':image_url,'predictImage':predictImage,'styleImage':Style_Image}
-    return render(request,'index.html',context)
+    #기존 코드 밑에 2줄
+    #context={'filePathName':imageUrl,'predictImage':predictImage,'styleImage':Style_Image}
+    #return render(request,'index.html',context)
+        
+    
+
+
+    return tempNumber,predictImage,Style_Image
+
 

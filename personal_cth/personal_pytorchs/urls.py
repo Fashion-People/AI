@@ -1,13 +1,19 @@
 from django.urls import path,include
 from rest_framework import routers
 from . import views #views.pu import
+from .views import API, clothes_urlAPI,clothes_analysisAPI
 
 #인스턴스 이름 바꿀 수 있는 곳
+#라우터 기본(?) 127.0.0.1 했을때 나오도록 한 것 
 router = routers.DefaultRouter()
-router.register('clothes_classification',views.ItemViewSet)
+router.register('clothes_classification',views.ClothesViewSet)
 
 urlpatterns = [
-    path('',include(router.urls))
+    path('',include(router.urls)),
+    path("api/", API),
+    path("clothes_urlAPI/", clothes_urlAPI),
+    path("clothes_analysisAPI/", clothes_analysisAPI),
+    
 ]
 
 #기존에 있던 것 

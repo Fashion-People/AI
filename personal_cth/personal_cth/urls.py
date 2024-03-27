@@ -40,7 +40,7 @@ schema_view=get_schema_view(
 urlpatterns = [
     #장고 부분
     path('admin/', admin.site.urls),
-    url('^$',views.index,name='homepage'),
+    #url('^$',views.index,name='homepage'),
     url('predictImage',views.predictImage,name='predictImage'),
 
     #스웨거 부분
@@ -49,7 +49,9 @@ urlpatterns = [
     url(r'redoc', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     #api 부분
-    path('',include('personal_pytorchs.urls')), #personal_pytorchs/urls.py 사용한다
+    path("",include("personal_pytorchs.urls")), #personal_pytorchs/urls.py 사용한다
+
+    
 ]
 
 #media 파일로 들어간다.

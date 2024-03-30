@@ -5,9 +5,12 @@ import json
 
 from django.shortcuts import render
 # DRF 관련 import 
+from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.decorators import api_view
+
 #api 시리얼 import
 from .serializers import ClothesSerializer
 from .serializers import Clothes_url_Serializer
@@ -19,32 +22,32 @@ from .models import clothes_classification
 from django.http import JsonResponse
 
 
-class ClothesViewSet(viewsets.ModelViewSet):
-    queryset = clothes_classification.objects.all()
-    serializer_class = ClothesSerializer
+#class ClothesViewSet(viewsets.ModelViewSet):
+    #queryset = clothes_classification.objects.all()
+    #serializer_class = ClothesSerializer
 
 #미리 해보는 것 연습용
 @api_view(['GET'])
 def API(request):
     return Response("api 에 오신것을 환영합니다.")
+
+
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
-@api_view(['GET','POST'])
-def clothes_urlAPI(request):
-    if request.method == 'GET':
-        response = requests.get('http://54.180.107.32:8081/temp/1') #여기에는 가져오는 spring boot 의 서버주소 
-        data_from_springboot = response.json()
-        #this_url = Clothes_url_Serializer.objects.get(imageUrl)
-        #serializer = Clothes_url_Serializer.object.get(this_item)
-        
-        # 실험하기 위해서 작성한 코드 
-        data_from_springboot['imageUrl']="https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg"
-        return JsonResponse(data_from_springboot)
-    elif request.method == 'POST':
-        return ()
 
+class ImageAnalysis(APIView):
+     def get(self, request):
+        #파라미터 가져오기
+        url = request.query_params.get('imageUrl', None)
+        tempNumber = request.query_params.get('tempNumber',None)
 
-    #return imageUrl,tempNumber
-    #return Response("안녕하세요 api에 오신것을 환영합니다.")
+        url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg'
+
+        if url :
+            ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url)
+            return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
+        else :
+            return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -55,16 +58,6 @@ def clothes_urlAPI(request):
 #return JsonResponse({'status': response.status_code})
 
 
-# 이미지 분석결과 보내주기
-@api_view(['POST'])
-def clothes_analysisAPI(request):
-    ClothesNumber, ClothesType ,ClothesStyle =  predictImage()
-    print(ClothesNumber)
-    print(ClothesType)
-    print(ClothesStyle)
-    data_to_send = {'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle}
-    data_to_springboot = json.dumps(data_to_send)
-    return JsonResponse(data_to_springboot)
 
 
 
@@ -129,7 +122,7 @@ style_model = style_loaded_model
 
 
 #기존 url + predictImage를 더해서 request 했을때를 의미함
-def predictImage():
+def predictImage(imageUrl):
     #print(request)
     #print (request.POST.dict())
     #print (request.FILES['filePath'])
@@ -166,10 +159,10 @@ def predictImage():
     #image_url='https://web.joongna.com/cafe-article-data/live/2024/01/15/1035339901/1705305954360_000_DXO5P_main.jpg'
     
     #장고 서버 열면, 여기 url 수정 필요 
-    response = requests.get('http://127.0.0.1:8000/clothes_urlAPI/')
-    data_from_springboot = response.json()
-    imageUrl = data_from_springboot.get('imageUrl')
-    tempNumber = data_from_springboot.get('tempNumber')
+    #response = requests.get('http://127.0.0.1:8000/clothes_urlAPI/')
+    #data_from_springboot = response.json()
+    #imageUrl = data_from_springboot.get('imageUrl')
+    #tempNumber = data_from_springboot.get('tempNumber')
 
     
     response = requests.get(imageUrl)
@@ -270,7 +263,7 @@ def predictImage():
     #context={'filePathName':imageUrl,'predictImage':predictImage,'styleImage':Style_Image}
     #return render(request,'index.html',context)
         
-    
+    tempNumber =1
 
 
     return tempNumber,predictImage,Style_Image

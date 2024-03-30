@@ -12,3 +12,4 @@ class clothes_classification(models.Model):
     tempNumber = models.IntegerField()
 
     
+#모델이 추가됨

@@ -50,8 +50,6 @@ class ImageAnalysis(APIView):
 
 
 
-
-
 #챗지피티 참조
 #data_to_send = {'key': 'value'}
 #response = requests.post('http://localhost:8080/data', json=data_to_send)
@@ -93,9 +91,6 @@ transforms_test = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-with open('./models/imagenet_classes.json','r') as f:
-    labelInfo=f.read()
-labelInfo=json.loads(labelInfo)
 
 model_path='./models/model_best_epoch3.pth'
 loaded_model = torch.load(model_path)

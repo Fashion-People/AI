@@ -26,10 +26,6 @@ from django.http import JsonResponse
     #queryset = clothes_classification.objects.all()
     #serializer_class = ClothesSerializer
 
-#미리 해보는 것 연습용
-@api_view(['GET'])
-def API(request):
-    return Response("api 에 오신것을 환영합니다.")
 
 
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
@@ -40,10 +36,10 @@ class ImageAnalysis(APIView):
         url = request.query_params.get('imageUrl', None)
         tempNumber = request.query_params.get('tempNumber',None)
 
-        url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg'
+        #url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg'
 
         if url :
-            ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url)
+            ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url,tempNumber)
             return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
         else :
             return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
@@ -117,7 +113,7 @@ style_model = style_loaded_model
 
 
 #기존 url + predictImage를 더해서 request 했을때를 의미함
-def predictImage(imageUrl):
+def predictImage(imageUrl,tempNumber):
     #print(request)
     #print (request.POST.dict())
     #print (request.FILES['filePath'])
@@ -257,8 +253,6 @@ def predictImage(imageUrl):
     #기존 코드 밑에 2줄
     #context={'filePathName':imageUrl,'predictImage':predictImage,'styleImage':Style_Image}
     #return render(request,'index.html',context)
-        
-    tempNumber =1
 
 
     return tempNumber,predictImage,Style_Image

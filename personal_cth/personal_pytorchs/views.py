@@ -113,7 +113,7 @@ transforms_test = transforms.Compose([
 model_path='./models/model_best_epoch3.pth'
 loaded_model = torch.load(model_path)
 
-model_path='./models/style_only_model_best_epoch3.pth'
+model_path='./models/style_only_model_best_epoch4.pth'
 style_loaded_model = torch.load(model_path)
 
 model = loaded_model
@@ -260,7 +260,7 @@ def predictImage(imageUrl):
     _, preds = torch.max(style_output, 1)
 
     if (preds[0].item()==0):
-        Style_Image='modern'
+        Style_Image='modern '
     elif (preds[0].item()==1):
         Style_Image='스포티'
     elif (preds[0].item()==2):

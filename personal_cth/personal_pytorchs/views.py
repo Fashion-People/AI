@@ -33,14 +33,36 @@ from django.http import JsonResponse
 class ImageAnalysis(APIView):
      def get(self, request):
         #파라미터 가져오기
-        url = request.query_params.get('imageUrl', None)
-        tempNumber = request.query_params.get('tempNumber',None)
+        #배열의 형태를 가져온다.
+        #data = json.loads(request.body)
+        data = [{
+            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
+            'tempNumber' : 10
+        },{
+            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
+            'tempNumber' : 20
+        }]
+        result_data = []
+        for idx, item in enumerate(data, start=1):
+            url = item.get('imageUrl')
+            tempNumber = item.get('tempNumber')
+            ClothesType ,ClothesStyle =  predictImage(url)
+            result_data.append({
+                'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
+	            'clothesNumber' : idx, #옷번호
+	            'clothesStyle' : ClothesStyle, #옷 종류
+	            'clothesType' : ClothesType #옷 형태
+            })
 
-        #url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg'
+        #url = request.query_params.get('imageUrl', None)
+        #tempNumber = request.query_params.get('tempNumber',None)
+
+        #url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg' (트렌치코트 연습용)
 
         if url :
-            ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url,tempNumber)
-            return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
+            #ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url,tempNumber)
+            #return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
+            return JsonResponse(result_data, safe=False)
         else :
             return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -113,7 +135,7 @@ style_model = style_loaded_model
 
 
 #기존 url + predictImage를 더해서 request 했을때를 의미함
-def predictImage(imageUrl,tempNumber):
+def predictImage(imageUrl):
     #print(request)
     #print (request.POST.dict())
     #print (request.FILES['filePath'])
@@ -238,7 +260,7 @@ def predictImage(imageUrl,tempNumber):
     _, preds = torch.max(style_output, 1)
 
     if (preds[0].item()==0):
-        Style_Image='모던'
+        Style_Image='modern'
     elif (preds[0].item()==1):
         Style_Image='스포티'
     elif (preds[0].item()==2):
@@ -255,6 +277,6 @@ def predictImage(imageUrl,tempNumber):
     #return render(request,'index.html',context)
 
 
-    return tempNumber,predictImage,Style_Image
+    return predictImage,Style_Image
 
 

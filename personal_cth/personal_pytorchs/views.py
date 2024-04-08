@@ -260,7 +260,7 @@ def predictImage(imageUrl):
     _, preds = torch.max(style_output, 1)
 
     if (preds[0].item()==0):
-        Style_Image='modern '
+        Style_Image='모던'
     elif (preds[0].item()==1):
         Style_Image='스포티'
     elif (preds[0].item()==2):

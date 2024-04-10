@@ -57,6 +57,7 @@ class ImageAnalysis(APIView):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
         data = json.loads(request.body)
+        
 
 
         result_data = [] #결과를 담을 배열

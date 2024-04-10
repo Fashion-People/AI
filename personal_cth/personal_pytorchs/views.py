@@ -35,15 +35,31 @@ from django.http import JsonResponse
 #        }]
 
 
+#data = [{
+#            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
+#            'tempNumber' : 10
+#        },{
+#            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
+#            'tempNumber' : 20
+#        },{
+#            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
+#            'tempNumber' : 30
+#        },{
+#            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
+#            'tempNumber' : 40
+#        }
+#]
+
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
 
 class ImageAnalysis(APIView):
-     def get(self, request):
+     def post(self, request):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
         data = json.loads(request.body)
-        
-        result_data = []
+
+
+        result_data = [] #결과를 담을 배열
         for idx, item in enumerate(data, start=1):
             url = item.get('imageUrl')
             tempNumber = item.get('tempNumber')

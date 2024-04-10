@@ -26,6 +26,13 @@ from django.http import JsonResponse
     #queryset = clothes_classification.objects.all()
     #serializer_class = ClothesSerializer
 
+#data = [{
+#            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
+#            'tempNumber' : 10
+#        },{
+#            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
+#            'tempNumber' : 20
+#        }]
 
 
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
@@ -34,14 +41,8 @@ class ImageAnalysis(APIView):
      def get(self, request):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
-        #data = json.loads(request.body)
-        data = [{
-            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
-            'tempNumber' : 10
-        },{
-            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
-            'tempNumber' : 20
-        }]
+        data = json.loads(request.body)
+        
         result_data = []
         for idx, item in enumerate(data, start=1):
             url = item.get('imageUrl')

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-o&=*hb8cdckss!7)a%i#kep3e3n913_&5r2xk0d-@ty@os(z04
 DEBUG = True
 
 #여기 부분 -> 새로운 서버 생성시, 서버 url 주소 포함 시켜주기 
-ALLOWED_HOSTS = ['3.34.185.50', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['3.35.52.33', 'localhost', '127.0.0.1']
 
 
 # Application definition

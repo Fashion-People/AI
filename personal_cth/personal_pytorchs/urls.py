@@ -13,6 +13,7 @@ urlpatterns = [
     #실제 사용하는 api 
     path("imageAnalysis/",ImageAnalysis.as_view(),name='image_analysis'),
     
+    
 ]
 
 #기존에 있던 것 

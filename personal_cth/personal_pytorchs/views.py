@@ -50,39 +50,53 @@ from django.http import JsonResponse
 #        }
 #]
 
+#data = [{
+#            "imageUrl": "https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg",
+#            "tempNumber" : 10
+#            }]
+
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
 
 class ImageAnalysis(APIView):
-     def post(self, request):
+     
+     def post(self, request, *args, **kwargs):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+            
+            result_data = [] #결과를 담을 배열
+            for idx, item in enumerate(data, start=1):
+                url = item.get('imageUrl')
+                tempNumber = item.get('tempNumber')
+                ClothesType ,ClothesStyle =  predictImage(url)
+                result_data.append({
+                    'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
+                    'clothesNumber' : idx, #옷번호
+                    'clothesStyle' : ClothesStyle, #옷 종류
+                    'clothesType' : ClothesType #옷 형태
+                })
+
+            #url = request.query_params.get('imageUrl', None)
+            #tempNumber = request.query_params.get('tempNumber',None)
+
+            #url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg' (트렌치코트 연습용)
+
+            if url :
+                #ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url,tempNumber)
+                #return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
+                return JsonResponse(result_data, safe=False)
+            else :
+                return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return JsonResponse({"message": 'key error'}, status=400)
+    
+     #def get (self,request):
+     #    return Response('전달 완료')
+    
+
         
-
-
-        result_data = [] #결과를 담을 배열
-        for idx, item in enumerate(data, start=1):
-            url = item.get('imageUrl')
-            tempNumber = item.get('tempNumber')
-            ClothesType ,ClothesStyle =  predictImage(url)
-            result_data.append({
-                'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
-	            'clothesNumber' : idx, #옷번호
-	            'clothesStyle' : ClothesStyle, #옷 종류
-	            'clothesType' : ClothesType #옷 형태
-            })
-
-        #url = request.query_params.get('imageUrl', None)
-        #tempNumber = request.query_params.get('tempNumber',None)
-
-        #url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg' (트렌치코트 연습용)
-
-        if url :
-            #ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url,tempNumber)
-            #return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
-            return JsonResponse(result_data, safe=False)
-        else :
-            return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 
 

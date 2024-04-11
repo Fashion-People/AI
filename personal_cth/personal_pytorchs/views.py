@@ -2,6 +2,7 @@
 from django.core.files.storage import FileSystemStorage
 import requests
 import json
+from urllib.parse import quote
 
 from django.shortcuts import render
 # DRF 관련 import 
@@ -63,9 +64,16 @@ class ImageAnalysis(APIView):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
         try:
-            data = json.loads(request.body.decode('utf-8'))
+            #data = json.loads(request.body.decode('utf-8'))
             #request.body.decode('utf-8')
- 
+
+            data = {
+            "imageUrl": [
+            "https://fashionbucket.s3.ap-northeast-2.amazonaws.com/profile/image/패딩.jpg"
+            ],
+            "tempNumber": 10
+            }
+
 
             tempNumber = data.get('tempNumber',None)
             data = data['imageUrl']
@@ -73,8 +81,9 @@ class ImageAnalysis(APIView):
 
             result_data = [] #결과를 담을 배열
             for idx, item in enumerate(data, start=1):
+
                 url = item
-                ClothesType ,ClothesStyle =  predictImage(url)
+                ClothesType ,ClothesStyle =  predictImage(item)
                 result_data.append({
                     'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
                     'clothesNumber' : idx, #옷번호
@@ -134,7 +143,13 @@ from django.conf import settings
 import torch.nn as nn
 import torch.optim as optim
 
+#import PIL
 from PIL import Image
+import urllib.request
+import requests
+
+from django.http import HttpRequest
+
 
 device = torch.device('cpu')
 
@@ -207,23 +222,44 @@ def predictImage(imageUrl):
     #니트
     #image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThL2z9FRqnYfqVhp9MfahfmYod4WMSlp8qWA&usqp=CAU'
     #image_url='https://web.joongna.com/cafe-article-data/live/2024/01/15/1035339901/1705305954360_000_DXO5P_main.jpg'
-    
-    #장고 서버 열면, 여기 url 수정 필요 
-    #response = requests.get('http://127.0.0.1:8000/clothes_urlAPI/')
-    #data_from_springboot = response.json()
-    #imageUrl = data_from_springboot.get('imageUrl')
-    #tempNumber = data_from_springboot.get('tempNumber')
 
     
-    response = requests.get(imageUrl)
-    image_bytes = response.content
+    #response = requests.get(imageUrl)
+
+    # URL을 안전하게 인코딩
+    
+
+    # 안전하게 인코딩된 URL을 사용하여 GET 요청 보내기
+
+    #image_bytes = response.content
 
     # BytesIO를 사용하여 이미지 불러오기
-    image = Image.open(io.BytesIO(image_bytes))
-    #image_path = "./media/img.jpg"
-    #image.save(image_path)
+    #image = Image.open(io.BytesIO(image_bytes))
+
+    print(imageUrl)
+    encodedImageUrl = quote(imageUrl, safe=':/')
+    print(encodedImageUrl)
+    # 이미지 다운로드
+   
+
+    file_path = './personal_pytorchs/temp/image.jpg'
+    urllib.request.urlretrieve(encodedImageUrl,file_path)
+
+    #response = requests.get(imageUrl)
+    #response = file_path
+    #image_bytes = response.content
+
+    #image = Image.open(io.BytesIO(image_bytes))
+
+    image = Image.open(file_path)
+    image.show()
+
+    #image = Image.open(file_path)
+    #image = Image.open(io.BytesIO(image_bytes))
 
     image = transforms_test(image).unsqueeze(0).to(device)
+
+    
     # 이미지 표시
     #image.show()
 

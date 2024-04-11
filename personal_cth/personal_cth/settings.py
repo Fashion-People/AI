@@ -137,3 +137,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#https -> 사용 안하도록 , http 로만 이용하도록 함 
+SECURE_SSL_REDIRECT = False

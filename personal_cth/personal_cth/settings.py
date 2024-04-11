@@ -140,4 +140,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 #https -> 사용 안하도록 , http 로만 이용하도록 함 
-SECURE_SSL_REDIRECT = False
+#SECURE_SSL_REDIRECT = False

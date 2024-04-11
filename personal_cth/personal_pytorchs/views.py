@@ -64,11 +64,16 @@ class ImageAnalysis(APIView):
         #배열의 형태를 가져온다.
         try:
             data = json.loads(request.body)
-            
+            #request.body.decode('utf-8')
+ 
+
+            tempNumber = data.get('tempNumber',None)
+            data = data['imageUrl']
+            print(data)
+
             result_data = [] #결과를 담을 배열
             for idx, item in enumerate(data, start=1):
-                url = item.get('imageUrl')
-                tempNumber = item.get('tempNumber')
+                url = item
                 ClothesType ,ClothesStyle =  predictImage(url)
                 result_data.append({
                     'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호

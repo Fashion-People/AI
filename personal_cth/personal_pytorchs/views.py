@@ -63,7 +63,7 @@ class ImageAnalysis(APIView):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
         try:
-            data = json.loads(request.body)
+            data = json.loads(request.body.decode('utf-8'))
             #request.body.decode('utf-8')
  
 

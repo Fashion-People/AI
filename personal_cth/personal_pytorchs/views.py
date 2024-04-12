@@ -45,12 +45,15 @@ class ImageAnalysis(APIView):
 
                 url = item
                 ClothesType ,ClothesStyle =  predictImage(item)
-                result_data.append({
-                    'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
-                    'clothesNumber' : idx, #옷번호
-                    'clothesStyle' : ClothesStyle, #옷 종류
-                    'clothesType' : ClothesType #옷 형태
-                })
+                if ClothesType=='error':
+                    return JsonResponse({"message": 'Unidentified image error'}, status=400)
+                else :
+                    result_data.append({
+                        'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
+                        'clothesNumber' : idx, #옷번호
+                        'clothesStyle' : ClothesStyle, #옷 종류
+                        'clothesType' : ClothesType #옷 형태
+                    })
 
             if url :
                 return JsonResponse(result_data, safe=False)
@@ -63,15 +66,6 @@ class ImageAnalysis(APIView):
      #    return Response('전달 완료')
     
 
-        
-        
-
-
-
-#챗지피티 참조
-#data_to_send = {'key': 'value'}
-#response = requests.post('http://localhost:8080/data', json=data_to_send)
-#return JsonResponse({'status': response.status_code})
 
 
 
@@ -97,10 +91,9 @@ from django.conf import settings
 import torch.nn as nn
 import torch.optim as optim
 
-import PIL
 from PIL import Image
+from PIL import UnidentifiedImageError
 import urllib.request
-import requests
 
 from django.http import HttpRequest
 
@@ -142,48 +135,89 @@ style_model = style_loaded_model
 
 #기존 url + predictImage를 더해서 request 했을때를 의미함
 def predictImage(imageUrl):
-    #print(request)
-    #print (request.POST.dict())
-    #print (request.FILES['filePath'])
-    #file obj => 파일 이름
-
-    #fileobj = (request.FILES['filePath'])
-    #fs = FileSystemStorage()
-    #filePathName = fs.save(fileobj.name,fileobj)
-    #filePathName = fs.url(filePathName)
-    
- 
-    #response = requests.get(imageUrl)
-
-    # URL을 안전하게 인코딩
-    
-
-    # 안전하게 인코딩된 URL을 사용하여 GET 요청 보내기
-
-    #image_bytes = response.content
-
-    # BytesIO를 사용하여 이미지 불러오기
-    #image = Image.open(io.BytesIO(image_bytes))
-    encodedImageUrl = quote(imageUrl, safe=':/')
-    # 이미지 다운로드
    
-    #이미지 저장 후 
+    encodedImageUrl = quote(imageUrl, safe=':/')
+   
+    #이미지 다운로드 
     file_path = './personal_pytorchs/temp/practice.jpg'
     urllib.request.urlretrieve(encodedImageUrl,file_path)
 
-    #response = requests.get(imageUrl)
-    #response = file_path
-    #image_bytes = response.content 
 
-    #image = Image.open(io.BytesIO(image_bytes))
     path = './personal_pytorchs/temp/practice.jpg'
-    image = Image.open(path)
-    
+    try:        
+        image = Image.open(path)
+        image = transforms_test(image).unsqueeze(0).to(device)
+        with torch.no_grad():
+            model.eval()
+            output=model(image) #옷 종류 분석
+            style_model.eval()
+            style_output=style_model(image) #옷 스타일 분석
+            # 이미지 저장하는 것 (현재 파일에 올려둔 이미지)
+            #context={'filePathName':filePathName}
+            
+            #predictImage =torch.argmax(output[0]).item()
+            _, preds = torch.max(output, 1)
 
+            if (preds[0].item()==0):
+                predictImage='가디건'
+            elif (preds[0].item()==1):
+                predictImage='긴팔 티'
+            elif (preds[0].item()==2):
+                predictImage='누빔 옷'
+            elif (preds[0].item()==3):
+                predictImage='니트'
+            elif (preds[0].item()==4):
+                predictImage='린넨 옷'
+            elif (preds[0].item()==5):
+                predictImage='맨투맨'
+            elif (preds[0].item()==6):
+                predictImage='민소매'
+            elif (preds[0].item()==7):
+                predictImage='반팔'
+            elif (preds[0].item()==8):
+                predictImage='블라우스'
+            elif (preds[0].item()==9):
+                predictImage='야상'
+            elif (preds[0].item()==10):
+                predictImage='얇은 셔츠'
+            elif (preds[0].item()==11):
+                predictImage='자켓'
+            elif (preds[0].item()==12):
+                predictImage='청자켓'
+            elif (preds[0].item()==13):
+                predictImage='코트'
+            elif (preds[0].item()==14):
+                predictImage='트렌치코트'
+            elif (preds[0].item()==15):
+                predictImage='패딩'
+            elif (preds[0].item()==16):
+                predictImage='후드티'
+
+
+            _, preds = torch.max(style_output, 1)
+
+            if (preds[0].item()==0):
+                Style_Image='모던'
+            elif (preds[0].item()==1):
+                Style_Image='스포티'
+            elif (preds[0].item()==2):
+                Style_Image='캐주얼'
+            elif (preds[0].item()==3):
+                Style_Image='페미닌'
+
+        return predictImage,Style_Image
+
+
+    except UnidentifiedImageError as e:
+        print("이미지 파일을 식별할 수 없습니다:", e)
+        predictImage='error'
+        Style_Image='error'
+        return predictImage,Style_Image
+       
     #image = Image.open(file_path)
     #image = Image.open(io.BytesIO(image_bytes))
 
-    image = transforms_test(image).unsqueeze(0).to(device)
+    #image = transforms_test(image).unsqueeze(0).to(device)
 
     
     # 이미지 표시
@@ -208,64 +242,8 @@ def predictImage(imageUrl):
     #x=imshow(testimage)
 
 
-    with torch.no_grad():
-       model.eval()
-       output=model(image) #옷 종류 분석
-       style_model.eval()
-       style_output=style_model(image) #옷 스타일 분석
-    # 이미지 저장하는 것 (현재 파일에 올려둔 이미지)
-    #context={'filePathName':filePathName}
-       
-    #predictImage =torch.argmax(output[0]).item()
-    _, preds = torch.max(output, 1)
+   
 
-    if (preds[0].item()==0):
-        predictImage='가디건'
-    elif (preds[0].item()==1):
-        predictImage='긴팔 티'
-    elif (preds[0].item()==2):
-        predictImage='누빔 옷'
-    elif (preds[0].item()==3):
-        predictImage='니트'
-    elif (preds[0].item()==4):
-        predictImage='린넨 옷'
-    elif (preds[0].item()==5):
-        predictImage='맨투맨'
-    elif (preds[0].item()==6):
-        predictImage='민소매'
-    elif (preds[0].item()==7):
-        predictImage='반팔'
-    elif (preds[0].item()==8):
-        predictImage='블라우스'
-    elif (preds[0].item()==9):
-        predictImage='야상'
-    elif (preds[0].item()==10):
-        predictImage='얇은 셔츠'
-    elif (preds[0].item()==11):
-        predictImage='자켓'
-    elif (preds[0].item()==12):
-        predictImage='청자켓'
-    elif (preds[0].item()==13):
-        predictImage='코트'
-    elif (preds[0].item()==14):
-        predictImage='트렌치코트'
-    elif (preds[0].item()==15):
-        predictImage='패딩'
-    elif (preds[0].item()==16):
-        predictImage='후드티'
-
-
-
-    _, preds = torch.max(style_output, 1)
-
-    if (preds[0].item()==0):
-        Style_Image='모던'
-    elif (preds[0].item()==1):
-        Style_Image='스포티'
-    elif (preds[0].item()==2):
-        Style_Image='캐주얼'
-    elif (preds[0].item()==3):
-        Style_Image='페미닌'
 
 
     #이부분에 post 하는 def 시켜놓은거 불러다가 저장해주기?
@@ -274,8 +252,3 @@ def predictImage(imageUrl):
     #기존 코드 밑에 2줄
     #context={'filePathName':imageUrl,'predictImage':predictImage,'styleImage':Style_Image}
     #return render(request,'index.html',context)
-
-
-    return predictImage,Style_Image
-
-

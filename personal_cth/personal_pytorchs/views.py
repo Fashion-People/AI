@@ -23,38 +23,7 @@ from .models import clothes_classification
 from django.http import JsonResponse
 
 
-#class ClothesViewSet(viewsets.ModelViewSet):
-    #queryset = clothes_classification.objects.all()
-    #serializer_class = ClothesSerializer
 
-#data = [{
-#            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
-#            'tempNumber' : 10
-#        },{
-#            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
-#            'tempNumber' : 20
-#        }]
-
-
-#data = [{
-#            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
-#            'tempNumber' : 10
-#        },{
-#            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
-#            'tempNumber' : 20
-#        },{
-#            'imageUrl': 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg',
-#            'tempNumber' : 30
-#        },{
-#            'imageUrl': 'https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg',
-#            'tempNumber' : 40
-#        }
-#]
-
-#data = [{
-#            "imageUrl": "https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg",
-#            "tempNumber" : 10
-#            }]
 
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
 
@@ -64,15 +33,7 @@ class ImageAnalysis(APIView):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
         try:
-            #data = json.loads(request.body.decode('utf-8'))
-            #request.body.decode('utf-8')
-
-            data = {
-            "imageUrl": [
-            "https://fashionbucket.s3.ap-northeast-2.amazonaws.com/profile/image/패딩.jpg"
-            ],
-            "tempNumber": 10
-            }
+            data = json.loads(request.body.decode('utf-8'))
 
 
             tempNumber = data.get('tempNumber',None)
@@ -91,14 +52,7 @@ class ImageAnalysis(APIView):
                     'clothesType' : ClothesType #옷 형태
                 })
 
-            #url = request.query_params.get('imageUrl', None)
-            #tempNumber = request.query_params.get('tempNumber',None)
-
-            #url = 'https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg' (트렌치코트 연습용)
-
             if url :
-                #ClothesNumber, ClothesType ,ClothesStyle =  predictImage(url,tempNumber)
-                #return Response({'ClothesNumber': ClothesNumber,'ClothesType':ClothesType,'ClothesStyle':ClothesStyle})
                 return JsonResponse(result_data, safe=False)
             else :
                 return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
@@ -143,7 +97,7 @@ from django.conf import settings
 import torch.nn as nn
 import torch.optim as optim
 
-#import PIL
+import PIL
 from PIL import Image
 import urllib.request
 import requests
@@ -198,32 +152,7 @@ def predictImage(imageUrl):
     #filePathName = fs.save(fileobj.name,fileobj)
     #filePathName = fs.url(filePathName)
     
-    #반팔
-    #image_url='https://image.msscdn.net/images/goods_img/20230329/3188053/3188053_16813635662783_500.jpg' 
-    
-    #트렌치 코트 
-    #image_url='https://media.bunjang.co.kr/product/242654539_1_1699790685_w360.jpg'
-
-
-    #블라우스
-    #image_url='https://media.bunjang.co.kr/product/124189638_1_1589021004_w360.jpg'
-
-    #image_url='https://media.bunjang.co.kr/product/224787189_1_1684729265_w360.jpg'
-
-    #image_url='https://media.bunjang.co.kr/product/246083941_1_1702366323_w360.jpg'
-
-    #야상
-    #image_url='https://qi-o.qoo10cdn.com/goods_image_big/3/6/9/3/7877613693_l.jpg'
-
-    #후드티
-    #image_url='https://images.kolonmall.com/Prod_Img/CJ/2021/LM6/J3TEA21703GYM_LM6.jpg'
-
-    #image_url='https://m.editail.com/web/product/big/202301/111c3a3ccc4a496fcea47fb1a0fad190.jpg'
-    #니트
-    #image_url='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThL2z9FRqnYfqVhp9MfahfmYod4WMSlp8qWA&usqp=CAU'
-    #image_url='https://web.joongna.com/cafe-article-data/live/2024/01/15/1035339901/1705305954360_000_DXO5P_main.jpg'
-
-    
+ 
     #response = requests.get(imageUrl)
 
     # URL을 안전하게 인코딩
@@ -235,24 +164,21 @@ def predictImage(imageUrl):
 
     # BytesIO를 사용하여 이미지 불러오기
     #image = Image.open(io.BytesIO(image_bytes))
-
-    print(imageUrl)
     encodedImageUrl = quote(imageUrl, safe=':/')
-    print(encodedImageUrl)
     # 이미지 다운로드
    
-
-    file_path = './personal_pytorchs/temp/image.jpg'
+    #이미지 저장 후 
+    file_path = './personal_pytorchs/temp/practice.jpg'
     urllib.request.urlretrieve(encodedImageUrl,file_path)
 
     #response = requests.get(imageUrl)
     #response = file_path
-    #image_bytes = response.content
+    #image_bytes = response.content 
 
     #image = Image.open(io.BytesIO(image_bytes))
-
-    image = Image.open(file_path)
-    image.show()
+    path = './personal_pytorchs/temp/practice.jpg'
+    image = Image.open(path)
+    
 
     #image = Image.open(file_path)
     #image = Image.open(io.BytesIO(image_bytes))
@@ -284,9 +210,9 @@ def predictImage(imageUrl):
 
     with torch.no_grad():
        model.eval()
-       output=model(image)
+       output=model(image) #옷 종류 분석
        style_model.eval()
-       style_output=style_model(image)
+       style_output=style_model(image) #옷 스타일 분석
     # 이미지 저장하는 것 (현재 파일에 올려둔 이미지)
     #context={'filePathName':filePathName}
        

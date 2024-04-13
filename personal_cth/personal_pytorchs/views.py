@@ -12,17 +12,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 
-#api 시리얼 import
-from .serializers import ClothesSerializer
-from .serializers import Clothes_url_Serializer
-from .serializers import Clothes_analysis_Serializer
-#api 모델 임포트 import
-from .models import clothes_classification 
+
 
 #spring boot 연동을 위한 import
 from django.http import JsonResponse
-
-
 
 
 # 이미지 url 가져오기 & json 형태 데이터 파싱 
@@ -45,7 +38,7 @@ class ImageAnalysis(APIView):
                 url = item
                 ClothesType ,ClothesStyle =  predictImage(item)
                 if ClothesType=='error':
-                    return JsonResponse({"messaage":'Unidentified image error'})
+                    return JsonResponse({"messaage":'Unidentified image error',"number":idx})
                 else :
                     result_data.append({
                         'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
@@ -64,9 +57,6 @@ class ImageAnalysis(APIView):
      #def get (self,request):
      #    return Response('전달 완료')
     
-
-
-
 
 
 
@@ -116,20 +106,6 @@ style_loaded_model = torch.load(model_path)
 
 model = loaded_model
 style_model = style_loaded_model
-#num_features = model.fc.in_features
-# 전이 학습(transfer learning): 모델의 출력 뉴런 수를 3개로 교체하여 마지막 레이어 다시 학습
-#model.fc = nn.Linear(num_features, 17)
-#model = model.to(device)
-
-#criterion = nn.CrossEntropyLoss()
-#optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
-#기존에 있던 것
-#def index(request):
-#    context={'a':1}
-#    return render(request,'index.html',context)
-#이미지 분석전용?
-
 
 
 #기존 url + predictImage를 더해서 request 했을때를 의미함

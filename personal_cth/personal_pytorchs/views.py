@@ -46,7 +46,7 @@ class ImageAnalysis(APIView):
                 url = item
                 ClothesType ,ClothesStyle =  predictImage(item)
                 if ClothesType=='error':
-                    return JsonResponse({"message": 'Unidentified image error'}, status=400)
+                    return JsonResponse({'Unidentified image error'}, status=400)
                 else :
                     result_data.append({
                         'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호

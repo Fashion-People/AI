@@ -27,7 +27,6 @@ class ImageAnalysis(APIView):
         #배열의 형태를 가져온다.
         try:
             data = json.loads(request.body.decode('utf-8'))
-
             tempNumber = data.get('tempNumber',None)
             data = data['imageUrl']
             print(data)
@@ -44,7 +43,8 @@ class ImageAnalysis(APIView):
                         'tempNumber' : tempNumber, #이미지 url 받았을 때 이미지 리스트 번호
                         'clothesNumber' : idx, #옷번호
                         'clothesStyle' : ClothesStyle, #옷 종류
-                        'clothesType' : ClothesType #옷 형태
+                        'clothesType' : ClothesType,#옷 형태
+                        'imageUrl' : url #옷 url 
                     })
 
             if url :

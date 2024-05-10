@@ -98,13 +98,13 @@ transforms_test = transforms.Compose([
 ])
 
 
-model_path='./models/model_best_epoch3.pth'
+model_path='./models/model_best_epoch4.pth'
 loaded_model = torch.load(model_path)
 
 model_path='./models/style_only_model_best_epoch4.pth'
 style_loaded_model = torch.load(model_path)
 
-model = loaded_model
+model = loaded_model 
 style_model = style_loaded_model
 
 

@@ -26,7 +26,7 @@ class ImageAnalysis(APIView):
         #파라미터 가져오기
         #배열의 형태를 가져온다.
         try:
-            data = json.loads(request.body.decode('utf-8'))
+            data = json.loads(request.body.decode('utf-8'))          
             tempNumber = data.get('tempNumber',None)
             data = data['imageUrl']
             print(data)
@@ -48,6 +48,7 @@ class ImageAnalysis(APIView):
                     })
 
             if url :
+                print(result_data)
                 return JsonResponse(result_data, safe=False)
             else :
                 return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
@@ -101,7 +102,7 @@ transforms_test = transforms.Compose([
 model_path='./models/model_best_epoch4.pth'
 loaded_model = torch.load(model_path)
 
-model_path='./models/style_only_model_best_epoch4.pth'
+model_path='./models/style_only_model_best_epoch6.pth'
 style_loaded_model = torch.load(model_path)
 
 model = loaded_model 

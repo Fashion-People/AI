@@ -46,10 +46,11 @@ class ImageAnalysis(APIView):
                         'clothesType' : ClothesType,#옷 형태
                         'imageUrl' : url #옷 url 
                     })
+                    print('clothesNumber : ',idx)
+                    print('clothesStyle : ',ClothesStyle)
+                    print('clothesType : ',ClothesType)
 
             if url :
-                print('clothesStyle : ',ClothesStyle)
-                print('clothesType : ',ClothesType)
                 return JsonResponse(result_data, safe=False)
             else :
                 return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)

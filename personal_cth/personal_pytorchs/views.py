@@ -48,7 +48,8 @@ class ImageAnalysis(APIView):
                     })
 
             if url :
-                print(result_data)
+                print('clothesStyle : ',ClothesStyle)
+                print('clothesType : ',ClothesType)
                 return JsonResponse(result_data, safe=False)
             else :
                 return Response({'error': 'URL parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
